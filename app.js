@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const mongoose = require('mongoose');
 const feedRoutes = require('./routes/feed');
 
 const app = express();
-
+const MONGODB_URI = 'mongodb+srv://tommybab_node:i3USmkwJ0b8clDGJ@cluster0.edvp1.mongodb.net/messages?retryWrites=true&w=majority';
 // app.use(bodyParser.urlencoded()); //x-www-form-urlencoded <form>
 
 app.use(bodyParser.json()); //application/jsonx
@@ -20,4 +20,11 @@ app.use((req, res, next) => {
 //GET  /feed/posts
 app.use('/feed',feedRoutes);
 
-app.listen(8080);
+mongoose.connect(MONGODB_URI)
+        .then(result => {
+            app.listen(8080);
+        })
+        .catch(err=> {
+            console.log(err);
+        });
+
