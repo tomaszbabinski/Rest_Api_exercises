@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -8,7 +9,7 @@ const MONGODB_URI = 'mongodb+srv://tommybab_node:i3USmkwJ0b8clDGJ@cluster0.edvp1
 // app.use(bodyParser.urlencoded()); //x-www-form-urlencoded <form>
 
 app.use(bodyParser.json()); //application/jsonx
-
+app.use('/images',express.static(path.join(__dirname,'images')));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
