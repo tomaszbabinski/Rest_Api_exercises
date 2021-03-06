@@ -25,10 +25,11 @@ exports.createPost = (req, res, next) => {
 
     const title = req.body.title;
     const content = req.body.content;
+    const imageUrl = req.file.path.replace("\\","/");
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/photo.jpeg',
+        imageUrl: imageUrl,
         creator: {
             name: 'Tom'
         }
