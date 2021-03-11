@@ -6,6 +6,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const MONGODB_URI = 'mongodb+srv://tommybab_node:i3USmkwJ0b8clDGJ@cluster0.edvp1.mongodb.net/messages?retryWrites=true&w=majority';
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 
 //GET  /feed/posts
 app.use('/feed',feedRoutes);
+app.use('/auth',authRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
