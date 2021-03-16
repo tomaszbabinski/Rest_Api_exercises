@@ -37,3 +37,33 @@ exports.singup = (req,res,next) => {
     })
 
 }
+
+exports.login = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    let loadedUser;
+    User.findOne({email: email})
+        .then(user => {
+            if(!user){
+               const error = new Error('A user with that email cannot be found'); 
+               error.statusCode = 401;
+               throw error;
+            }
+            loadedUser = user;
+            return bcrypt.compare(password, user.password)
+        })
+        .then(isEqual => {
+            if(!isEqual){
+                const error = new Error('Wrong password')
+                error.statusCode = 401;
+                throw error;
+            }
+
+        })
+        .catch(error => {
+            if(!error.statusCode){
+                error.statusCode = 500;
+            }
+            next(error);
+        })
+}
