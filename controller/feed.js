@@ -5,30 +5,27 @@ const {validationResult} = require('express-validator');
 const Post = require('../models/post');
 const User = require('../models/user');
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 2;
-    let totalItems;
-    Post.find().countDocuments()
-        .then(count => {
-            totalItems = count;
-            return Post.find()
-                .skip((currentPage -1) * perPage)
-                .limit(perPage);
-        })
-        .then(posts => {
-            res.status(200).json({
-                message: 'Fetched posts succeeded',
-                posts: posts,
-                totalItems: totalItems
-            });
-        })
-        .catch(err => {
+
+    try{
+        const totalItems = await Post.find().countDocuments();
+        const posts = await Post.find()
+                    .skip((currentPage -1) * perPage)
+                    .limit(perPage);     
+    
+        res.status(200).json({
+            message: 'Fetched posts succeeded',
+            posts: posts,
+            totalItems: totalItems
+        });
+    } catch (err) {
             if(!err.statusCode){
                 err.statusCode = 500;
             }
             next(err);
-        })
+    }   
 };
 
 exports.createPost = (req, res, next) => {
@@ -55,24 +52,16 @@ exports.createPost = (req, res, next) => {
         creator: req.userId
     });
     post.save()
-        .then(result => {
-            return User.findById(req.userId);
-        })
-        .then(user => {
-            creator = user;
-            user.posts.push(post);
-            return user.save();
-        })
-        .then(result => {
-            res.status(201).json({
+        .then(result => User.findById(req.userId))
+        .then(user => creator = user)
+        .then(result => res.status(201).json({
                 message: 'Post created successfuly',
                 post: post,
                 creator: {
                     _id: creator._id,
                     name: creator.name
                 }
-            });
-        })
+            }))
         .catch(err => {
             if(!err.statusCode){
                 err.statusCode = 500;
@@ -142,12 +131,10 @@ exports.updatePost = (req,res,next) => {
             post.content = content;
             return post.save();
         })
-        .then(result => {
-            res.status(200).json({
+        .then(result => res.status(200).json({
                 message: 'Post updated',
                 post: result
-            });
-        })
+            }))
         .catch(err => {
             if(!err.statusCode){
                 err.statusCode = 500;
@@ -173,16 +160,9 @@ exports.deletePost = (req,res,next) => {
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId);
         })
-        .then(result => {
-            return User.findById(req.userId);
-        })
-        .then(user => {
-            user.posts.pull(postId);
-            return user.save();
-        })
-        .then(result => {
-            res.status(200).json({message: 'Post deleted'})
-        })
+        .then(result => User.findById(req.userId))
+        .then(user => user.posts.pull(postId))
+        .then(result => res.status(200).json({message: 'Post deleted'}))
         .catch(err => {
             if(!err.statusCode){
                 err.statusCode = 500;
@@ -191,7 +171,4 @@ exports.deletePost = (req,res,next) => {
         })
 }
 
-const clearImage = filePath => {
-    filePath = path.join(__dirname,'..',filePath);
-    fs.unlink(filePath,err => console.log(err));
-}
+const clearImage = filePath => filePath = path.join(__dirname,'..',filePath)
