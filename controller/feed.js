@@ -142,10 +142,10 @@ exports.updatePost = async (req,res,next) => {
     }
 }
 
-exports.deletePost = (req,res,next) => {
+exports.deletePost = async (req,res,next) => {
     const postId = req.params.postId;
-    Post.findById(postId)
-        .then(post => {
+    try{
+    const post =  await Post.findById(postId);
             if(!post){
                 const error = new Error('Could not find post');
                 error.statusCode = 404;
@@ -157,17 +157,17 @@ exports.deletePost = (req,res,next) => {
                 throw error;
             }
             clearImage(post.imageUrl);
-            return Post.findByIdAndRemove(postId);
-        })
-        .then(result => User.findById(req.userId))
-        .then(user => user.posts.pull(postId))
-        .then(result => res.status(200).json({message: 'Post deleted'}))
-        .catch(err => {
-            if(!err.statusCode){
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    const resultFindAndRemove = await Post.findByIdAndRemove(postId);
+    const user = await User.findById(req.userId);    
+    const resultPostsPull = await user.posts.pull(postId);        
+    
+    res.status(200).json({message: 'Post deleted'})
+    } catch (err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
 const clearImage = filePath => filePath = path.join(__dirname,'..',filePath)
