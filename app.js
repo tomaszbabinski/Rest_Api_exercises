@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
+const auth = require('./middleware/auth');
 
 // const feedRoutes = require('./routes/feed');
 // const authRoutes = require('./routes/auth');
@@ -49,9 +50,7 @@ app.use((req, res, next) => {
     next();
 });
 
-//GET  /feed/posts
-// app.use('/feed',feedRoutes);
-// app.use('/auth',authRoutes);
+app.use(auth);
 
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
