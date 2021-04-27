@@ -50,7 +50,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(auth);
+app.use(auth)
 
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
