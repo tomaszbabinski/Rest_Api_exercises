@@ -8,7 +8,7 @@ const { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 const auth = require('./middleware/auth');
-const fs = require('fs');
+const { clearImage } = require('./util/file');
 
 // const feedRoutes = require('./routes/feed');
 // const authRoutes = require('./routes/auth');
